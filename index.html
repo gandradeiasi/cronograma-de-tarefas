@@ -133,7 +133,7 @@
   <div class="container">
     <h1>Estimativa de Prazos</h1>
     
-    <!-- Configurações Padrão -->
+    <!-- Configurações Padrão (salvamento automático) -->
     <section id="defaults">
       <h2>Configurações Padrão</h2>
       <form id="defaults-form" class="defaults-form">
@@ -145,7 +145,6 @@
         <input type="time" id="default-lunch-start" value="12:00" required>
         <label for="default-lunch-duration">Duração do Almoço (min) Padrão:</label>
         <input type="number" id="default-lunch-duration" value="60" required>
-        <button type="submit">Salvar Configurações</button>
       </form>
     </section>
     
@@ -274,9 +273,13 @@
       lunchStart: "12:00",
       lunchDuration: "60"
     };
-    const weekDays = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+    const weekDays = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
     
     /* Funções Auxiliares */
+    // Para evitar problemas de fuso horário, sempre criamos a data com "T00:00:00"
+    function parseDate(dateStr) {
+      return new Date(dateStr + "T00:00:00");
+    }
     function getRandomColor() {
       return '#' + Math.floor(Math.random() * 16777215).toString(16);
     }
@@ -293,6 +296,15 @@
       const parts = dateStr.split('-');
       return `${parts[2]}/${parts[1]}/${parts[0]}`;
     }
+    // Retorna o próximo dia útil (segunda a sexta). Se o dia seguinte for sábado ou domingo, avança até segunda.
+    function getNextBusinessDay(dateStr) {
+      let date = parseDate(dateStr);
+      date.setDate(date.getDate() + 1);
+      while(date.getDay() === 0 || date.getDay() === 6) {
+        date.setDate(date.getDate() + 1);
+      }
+      return date.toISOString().split('T')[0];
+    }
     function updateWorkdayDateDefault() {
       const dateInput = document.getElementById('workday-date');
       if(workdays.length > 0) {
@@ -301,14 +313,6 @@
       } else {
         dateInput.value = new Date().toISOString().split('T')[0];
       }
-    }
-    function getNextBusinessDay(dateStr) {
-      let date = new Date(dateStr);
-      date.setDate(date.getDate() + 1);
-      while(date.getDay() === 0 || date.getDay() === 6) {
-        date.setDate(date.getDate() + 1);
-      }
-      return date.toISOString().split('T')[0];
     }
     
     /* Configurações Padrão */
@@ -324,6 +328,19 @@
       document.getElementById('default-lunch-start').value = defaults.lunchStart;
       document.getElementById('default-lunch-duration').value = defaults.lunchDuration;
     }
+    // Salvamento automático das configurações padrão ao alterar qualquer input
+    document.querySelectorAll('#defaults-form input').forEach(input => {
+      input.addEventListener('change', () => {
+        defaults.start = document.getElementById('default-start').value;
+        defaults.end = document.getElementById('default-end').value;
+        defaults.lunchStart = document.getElementById('default-lunch-start').value;
+        defaults.lunchDuration = document.getElementById('default-lunch-duration').value;
+        saveData('defaults', defaults);
+        applyDefaultWorkdayValues();
+      });
+    });
+    renderDefaults();
+    applyDefaultWorkdayValues();
     
     /* Renderização dos Itens */
     function renderTasks() {
@@ -424,7 +441,8 @@
     function renderScheduleOptions() {
       const scheduleSelect = document.getElementById('schedule-workday');
       scheduleSelect.innerHTML = '';
-      let sortedWorkdays = workdays.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+      // Ordena os dias de trabalho usando parseDate para garantir que o fuso horário não altere o dia
+      let sortedWorkdays = workdays.slice().sort((a, b) => parseDate(a.date) - parseDate(b.date));
       sortedWorkdays.forEach(day => {
         const option = document.createElement('option');
         option.value = day.date;
@@ -440,9 +458,13 @@
       const scheduleSelect = document.getElementById('schedule-workday');
       const selectedDate = scheduleSelect.value;
       const timeInput = document.getElementById('schedule-time');
+      // Procura o dia usando parseDate para garantir a correção do dia da semana
       const day = workdays.find(d => d.date === selectedDate);
       if(day) {
-        timeInput.value = day.start;
+        // Preenche com o horário de início do dia, mas permite edição
+        if(!timeInput.value) {
+          timeInput.value = day.start;
+        }
       }
       scheduleStart = { date: selectedDate, time: timeInput.value };
       localStorage.setItem('scheduleStart', JSON.stringify(scheduleStart));
@@ -458,20 +480,6 @@
     }
     
     /* Eventos dos Formulários */
-    // Configurações Padrão
-    document.getElementById('defaults-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      defaults.start = document.getElementById('default-start').value;
-      defaults.end = document.getElementById('default-end').value;
-      defaults.lunchStart = document.getElementById('default-lunch-start').value;
-      defaults.lunchDuration = document.getElementById('default-lunch-duration').value;
-      saveData('defaults', defaults);
-      applyDefaultWorkdayValues();
-      alert('Configurações padrão salvas!');
-    });
-    renderDefaults();
-    applyDefaultWorkdayValues();
-    
     // Adicionar Tarefa
     document.getElementById('task-form').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -496,8 +504,9 @@
       workdays.push({date, start, end, lunchStart, lunchDuration});
       saveData('workdays', workdays);
       renderWorkdays();
-      e.target.reset();
+      // Não limpa os campos; reinicia os valores de horário com os defaults e atualiza a data automaticamente
       updateWorkdayDateDefault();
+      applyDefaultWorkdayValues();
     });
     
     // Lógica para exibir/ocultar o campo de data na reunião
@@ -511,7 +520,7 @@
       });
     });
     
-    // Checkbox Presencial: os campos de horário ficam ocultos se marcado
+    // Checkbox Presencial: oculta os campos de horário se marcado
     document.getElementById('meeting-client').addEventListener('change', (e) => {
       document.getElementById('meeting-time-container').style.display = e.target.checked ? 'none' : 'block';
     });
@@ -543,7 +552,7 @@
           let m = meetings[i];
           let mApplies = false;
           if(m.recurring && m.recurring.length > 0) {
-            const dayObj = new Date(date);
+            const dayObj = parseDate(date);
             const dayName = weekDays[dayObj.getDay()];
             if(m.recurring.includes(dayName)) {
               if(!m.exclusions || !m.exclusions.includes(date)) {
@@ -554,7 +563,6 @@
             mApplies = true;
           }
           if(mApplies) {
-            // Se já houver reunião marcada como presencial, ou se a nova reunião conflitar com uma existente, sobrescreve
             if(m.presencial || (!presencial && m.start && m.end && start && end && !(timeToMinutes(end) <= timeToMinutes(m.start) || timeToMinutes(start) >= timeToMinutes(m.end)))) {
               conflictFound = true;
               conflictIndex = i;
@@ -598,12 +606,12 @@
       const output = document.getElementById('schedule-output');
       output.innerHTML = "";
       
-      let sortedWorkdays = workdays.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+      let sortedWorkdays = workdays.slice().sort((a, b) => parseDate(a.date) - parseDate(b.date));
       if(scheduleStart) {
-        sortedWorkdays = sortedWorkdays.filter(day => new Date(day.date) >= new Date(scheduleStart.date));
+        sortedWorkdays = sortedWorkdays.filter(day => parseDate(day.date) >= parseDate(scheduleStart.date));
       }
       
-      // Cópia das tarefas com tempo restante global (em minutos)
+      // Cópia das tarefas com tempo restante (em minutos)
       let scheduledTasks = tasks.map(task => ({
         name: task.name,
         globalRemaining: timeToMinutes(task.time),
@@ -611,15 +619,15 @@
         color: task.color
       }));
       
-      // Função para obter eventos fixos de um dia (almoço e reuniões).
-      // Se houver reunião presencial, esta sobrepõe quaisquer outras reuniões.
+      // Função para obter eventos fixos de um dia (almoço e reuniões)
+      // Se houver reunião presencial, ela sobrepõe quaisquer outras reuniões
       function getFixedEvents(day) {
         let events = [];
         let workStartMin = timeToMinutes(day.start);
         let workEndMin = timeToMinutes(day.end);
         let lunchStartMin = timeToMinutes(day.lunchStart);
         let lunchEndMin = lunchStartMin + parseInt(day.lunchDuration);
-        // Adiciona almoço
+        // Almoço
         if(lunchStartMin >= workStartMin && lunchEndMin <= workEndMin) {
           events.push({
             type: 'lunch',
@@ -630,12 +638,12 @@
             textColor: "#000000"
           });
         }
-        // Verifica se há reunião presencial para este dia
+        // Verifica se há reunião presencial
         let presencialMeeting = null;
         meetings.forEach(meeting => {
           let applies = false;
           if(meeting.recurring && meeting.recurring.length > 0) {
-            const dayObj = new Date(day.date);
+            const dayObj = parseDate(day.date);
             const dayName = weekDays[dayObj.getDay()];
             if(meeting.recurring.includes(dayName)) {
               if(!meeting.exclusions || !meeting.exclusions.includes(day.date)) {
@@ -670,7 +678,7 @@
           meetings.forEach(meeting => {
             let applies = false;
             if(meeting.recurring && meeting.recurring.length > 0) {
-              const dayObj = new Date(day.date);
+              const dayObj = parseDate(day.date);
               const dayName = weekDays[dayObj.getDay()];
               if(meeting.recurring.includes(dayName)) {
                 if(!meeting.exclusions || !meeting.exclusions.includes(day.date)) {
