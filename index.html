@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <title>Estimativa de Prazos</title>
@@ -15,25 +16,34 @@
       margin: 0;
       padding: 20px;
     }
+
     .container {
       max-width: 1000px;
       margin: auto;
     }
-    h1, h2, h3 {
+
+    h1,
+    h2,
+    h3 {
       margin-bottom: 10px;
     }
+
     section {
       background: #fff;
       padding: 20px;
       margin-bottom: 20px;
       border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
+
     form label {
       display: block;
       margin: 10px 0 5px;
     }
-    form input, form select, form button {
+
+    form input,
+    form select,
+    form button {
       margin: 5px 0;
       padding: 8px;
       border-radius: 4px;
@@ -41,6 +51,7 @@
       width: 100%;
       box-sizing: border-box;
     }
+
     form button {
       cursor: pointer;
       background-color: #007bff;
@@ -48,12 +59,15 @@
       border: none;
       transition: background-color 0.3s;
     }
+
     form button:hover {
       background-color: #0056b3;
     }
+
     ul {
       padding: 0;
     }
+
     li {
       list-style: none;
       margin: 8px 0;
@@ -65,22 +79,38 @@
       justify-content: space-between;
       align-items: center;
     }
+
     li span.item-text {
       flex: 1;
     }
-    .remove-btn {
-      background-color: #dc3545;
+
+    .remove-btn,
+    .edit-btn {
       border: none;
       color: #fff;
       padding: 5px 10px;
       border-radius: 4px;
       cursor: pointer;
       transition: background-color 0.3s;
-      margin-left: 10px;
+      margin-left: 5px;
     }
+
+    .remove-btn {
+      background-color: #dc3545;
+    }
+
     .remove-btn:hover {
       background-color: #c82333;
     }
+
+    .edit-btn {
+      background-color: #17a2b8;
+    }
+
+    .edit-btn:hover {
+      background-color: #138496;
+    }
+
     .schedule-day {
       border: 1px solid #ccc;
       border-radius: 4px;
@@ -88,14 +118,24 @@
       margin: 15px 0;
       background-color: #fff;
     }
+
     .schedule-segment {
       padding: 5px;
       margin: 3px 0;
       border-radius: 4px;
     }
+
     /* Reuniões: fundo preto, texto branco; Almoço: fundo branco, texto preto */
-    .meeting { background-color: #000000; color: #FFFFFF; }
-    .lunch   { background-color: #FFFFFF; color: #000000; }
+    .meeting {
+      background-color: #000000;
+      color: #FFFFFF;
+    }
+
+    .lunch {
+      background-color: #FFFFFF;
+      color: #000000;
+    }
+
     /* Grupo de checkboxes */
     .checkbox-group {
       display: flex;
@@ -103,6 +143,7 @@
       gap: 10px;
       margin: 5px 0;
     }
+
     .checkbox-group label {
       display: flex;
       align-items: center;
@@ -111,17 +152,20 @@
       padding: 5px 10px;
       border-radius: 4px;
     }
+
     /* Configurações Padrão */
     .defaults-form input {
       max-width: 200px;
       display: inline-block;
       margin-right: 10px;
     }
+
     .defaults-form label {
       display: inline-block;
       margin-right: 5px;
     }
-    /* Label para reunião presencial: checkbox e texto juntos na mesma linha */
+
+    /* Label para reunião presencial */
     .client-label {
       display: inline-flex;
       align-items: center;
@@ -129,10 +173,11 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>Estimativa de Prazos</h1>
-    
+
     <!-- Configurações Padrão (salvamento automático) -->
     <section id="defaults">
       <h2>Configurações Padrão</h2>
@@ -147,7 +192,7 @@
         <input type="number" id="default-lunch-duration" value="60" required>
       </form>
     </section>
-    
+
     <!-- Tarefas -->
     <section id="tasks">
       <h2>Tarefas</h2>
@@ -162,7 +207,7 @@
       </form>
       <ul id="task-list"></ul>
     </section>
-    
+
     <!-- Dias de Trabalho -->
     <section id="workdays">
       <h2>Dias de Trabalho</h2>
@@ -181,14 +226,14 @@
       </form>
       <ul id="workday-list"></ul>
     </section>
-    
+
     <!-- Reuniões -->
     <section id="meetings">
       <h2>Reuniões</h2>
       <form id="meeting-form">
         <label for="meeting-name">Nome da Reunião:</label>
         <input type="text" id="meeting-name" placeholder="Ex.: Reunião de Equipe" required>
-        
+
         <p>Reunião Recorrente – Selecione os dias da semana:</p>
         <div class="checkbox-group">
           <label><input type="checkbox" name="recurringDays" value="Domingo">Domingo</label>
@@ -199,20 +244,20 @@
           <label><input type="checkbox" name="recurringDays" value="Sexta">Sexta</label>
           <label><input type="checkbox" name="recurringDays" value="Sábado">Sábado</label>
         </div>
-        
-        <!-- Campo de data (aparece somente se nenhum checkbox de recorrência estiver marcado) -->
+
+        <!-- Campo de data (aparece somente se nenhum checkbox estiver marcado) -->
         <div id="meeting-date-container">
           <label for="meeting-date">Data (para reunião única):</label>
           <input type="date" id="meeting-date">
         </div>
-        
+
         <!-- Card para reunião presencial -->
         <div>
           <label class="client-label">
             <input type="checkbox" id="meeting-client">Presencial em cliente
           </label>
         </div>
-        
+
         <!-- Campos de horário (ocultados se reunião for presencial) -->
         <div id="meeting-time-container">
           <label for="meeting-start">Horário de Início:</label>
@@ -220,12 +265,12 @@
           <label for="meeting-end">Horário de Término:</label>
           <input type="time" id="meeting-end">
         </div>
-        
+
         <button type="submit">Adicionar Reunião</button>
       </form>
       <ul id="meeting-list"></ul>
     </section>
-    
+
     <!-- Início do Cronograma -->
     <section id="schedule-start">
       <h2>Início do Cronograma</h2>
@@ -236,20 +281,20 @@
         <input type="time" id="schedule-time" required>
       </form>
     </section>
-    
+
     <!-- Gerar Cronograma -->
     <section id="generate-schedule">
       <h2>Cronograma</h2>
       <button id="generate-btn">Gerar Cronograma</button>
       <div id="schedule-output"></div>
     </section>
-    
+
     <!-- Limpar Dados -->
     <section id="clear-data">
       <button id="clear-btn">Limpar Todos os Dados</button>
     </section>
   </div>
-  
+
   <script>
     /* Persistência via localStorage */
     function saveData(key, data) {
@@ -261,7 +306,7 @@
     function loadSingle(key) {
       return JSON.parse(localStorage.getItem(key));
     }
-    
+
     /* Variáveis Globais */
     let tasks = loadData('tasks');
     let workdays = loadData('workdays');
@@ -274,9 +319,9 @@
       lunchDuration: "60"
     };
     const weekDays = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-    
+
     /* Funções Auxiliares */
-    // Para evitar problemas de fuso horário, sempre cria a data com "T00:00:00"
+    // Cria a data adicionando "T00:00:00" para evitar problemas de fuso horário
     function parseDate(dateStr) {
       return new Date(dateStr + "T00:00:00");
     }
@@ -296,25 +341,27 @@
       const parts = dateStr.split('-');
       return `${parts[2]}/${parts[1]}/${parts[0]}`;
     }
-    // Retorna o próximo dia útil (segunda a sexta). Se o dia seguinte for sábado ou domingo, avança até segunda.
+    // Retorna o próximo dia útil (segunda a sexta). Se o próximo dia for sábado ou domingo, avança até segunda.
     function getNextBusinessDay(dateStr) {
       let date = parseDate(dateStr);
       date.setDate(date.getDate() + 1);
-      while(date.getDay() === 0 || date.getDay() === 6) {
+      while (date.getDay() === 0 || date.getDay() === 6) {
         date.setDate(date.getDate() + 1);
       }
       return date.toISOString().split('T')[0];
     }
     function updateWorkdayDateDefault() {
       const dateInput = document.getElementById('workday-date');
-      if(workdays.length > 0) {
-        let lastDate = workdays[workdays.length - 1].date;
+      if (workdays.length > 0) {
+        // Ordena os dias de trabalho em ordem cronológica
+        let sorted = workdays.slice().sort((a, b) => parseDate(a.date) - parseDate(b.date));
+        let lastDate = sorted[sorted.length - 1].date;
         dateInput.value = getNextBusinessDay(lastDate);
       } else {
         dateInput.value = new Date().toISOString().split('T')[0];
       }
     }
-    
+
     /* Configurações Padrão */
     function applyDefaultWorkdayValues() {
       document.getElementById('workday-start').value = defaults.start;
@@ -328,7 +375,7 @@
       document.getElementById('default-lunch-start').value = defaults.lunchStart;
       document.getElementById('default-lunch-duration').value = defaults.lunchDuration;
     }
-    // Salvamento automático das configurações padrão ao alterar qualquer input
+    // Salvamento automático das configurações padrão
     document.querySelectorAll('#defaults-form input').forEach(input => {
       input.addEventListener('change', () => {
         defaults.start = document.getElementById('default-start').value;
@@ -341,7 +388,7 @@
     });
     renderDefaults();
     applyDefaultWorkdayValues();
-    
+
     /* Renderização dos Itens */
     function renderTasks() {
       const taskList = document.getElementById('task-list');
@@ -355,6 +402,22 @@
         span.className = 'item-text';
         span.textContent = `${task.name} - ${task.time} (Limite: ${task.percent}%)`;
         li.appendChild(span);
+        // Botão Editar
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Editar';
+        editBtn.className = 'edit-btn';
+        editBtn.addEventListener('click', () => {
+          let newName = prompt("Editar nome:", task.name);
+          if (newName !== null) task.name = newName;
+          let newTime = prompt("Editar tempo (hh:mm):", task.time);
+          if (newTime !== null) task.time = newTime;
+          let newPercent = prompt("Editar limite percentual (%):", task.percent);
+          if (newPercent !== null) task.percent = parseFloat(newPercent);
+          saveData('tasks', tasks);
+          renderTasks();
+        });
+        li.appendChild(editBtn);
+        // Botão Remover
         const btn = document.createElement('button');
         btn.textContent = 'Remover';
         btn.className = 'remove-btn';
@@ -381,8 +444,10 @@
         taskList.appendChild(li);
       });
     }
-    
+
     function renderWorkdays() {
+      // Ordena os dias de trabalho em ordem cronológica
+      workdays.sort((a, b) => parseDate(a.date) - parseDate(b.date));
       const workdayList = document.getElementById('workday-list');
       workdayList.innerHTML = '';
       workdays.forEach((day, index) => {
@@ -405,7 +470,7 @@
       renderScheduleOptions();
       updateWorkdayDateDefault();
     }
-    
+
     function renderMeetings() {
       const meetingList = document.getElementById('meeting-list');
       meetingList.innerHTML = '';
@@ -413,14 +478,14 @@
         const li = document.createElement('li');
         const span = document.createElement('span');
         let text = meeting.name;
-        if(meeting.recurring && meeting.recurring.length > 0) {
+        if (meeting.recurring && meeting.recurring.length > 0) {
           text += ` (Recorrente: ${meeting.recurring.join(', ')})`;
-        } else if(meeting.date) {
+        } else if (meeting.date) {
           text += ` em ${meeting.date}`;
         }
-        if(meeting.presencial) {
+        if (meeting.presencial) {
           text += " [Presencial]";
-        } else if(meeting.start && meeting.end) {
+        } else if (meeting.start && meeting.end) {
           text += ` das ${meeting.start} às ${meeting.end}`;
         }
         span.textContent = text;
@@ -437,7 +502,7 @@
         meetingList.appendChild(li);
       });
     }
-    
+
     function renderScheduleOptions() {
       const scheduleSelect = document.getElementById('schedule-workday');
       scheduleSelect.innerHTML = '';
@@ -448,19 +513,19 @@
         option.textContent = `${day.date} (${day.start} - ${day.end})`;
         scheduleSelect.appendChild(option);
       });
-      if(sortedWorkdays.length > 0) {
+      if (sortedWorkdays.length > 0) {
         scheduleSelect.dispatchEvent(new Event('change'));
       }
     }
-    
+
     function updateScheduleTime() {
       const scheduleSelect = document.getElementById('schedule-workday');
       const selectedDate = scheduleSelect.value;
       const timeInput = document.getElementById('schedule-time');
       const day = workdays.find(d => d.date === selectedDate);
-      if(day) {
+      if (day) {
         // Preenche com o horário de início do dia, mas permite edição
-        if(!timeInput.value) {
+        if (!timeInput.value) {
           timeInput.value = day.start;
         }
       }
@@ -470,13 +535,13 @@
     document.getElementById('schedule-workday').addEventListener('change', updateScheduleTime);
     document.getElementById('schedule-time').addEventListener('change', updateScheduleTime);
     function renderScheduleStart() {
-      if(scheduleStart) {
+      if (scheduleStart) {
         const scheduleSelect = document.getElementById('schedule-workday');
         scheduleSelect.value = scheduleStart.date;
         document.getElementById('schedule-time').value = scheduleStart.time;
       }
     }
-    
+
     /* Eventos dos Formulários */
     // Adicionar Tarefa
     document.getElementById('task-form').addEventListener('submit', (e) => {
@@ -485,12 +550,12 @@
       const time = document.getElementById('task-time').value;
       const percent = parseFloat(document.getElementById('task-percent').value);
       const color = getRandomColor();
-      tasks.push({name, time, percent, color});
+      tasks.push({ name, time, percent, color });
       saveData('tasks', tasks);
       renderTasks();
       e.target.reset();
     });
-    
+
     // Adicionar Dia de Trabalho
     document.getElementById('workday-form').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -499,30 +564,30 @@
       const end = document.getElementById('workday-end').value;
       const lunchStart = document.getElementById('lunch-start').value;
       const lunchDuration = document.getElementById('lunch-duration').value;
-      workdays.push({date, start, end, lunchStart, lunchDuration});
+      workdays.push({ date, start, end, lunchStart, lunchDuration });
       saveData('workdays', workdays);
       renderWorkdays();
-      // Não limpa os campos; reinicializa os valores de horário com os defaults e atualiza a data automaticamente
+      // Reinicia os campos de horário com os valores padrão e atualiza a data automaticamente
       updateWorkdayDateDefault();
       applyDefaultWorkdayValues();
     });
-    
-    // Lógica para exibir/ocultar o campo de data na reunião
+
+    // Exibir/ocultar o campo de data na reunião
     document.querySelectorAll('input[name="recurringDays"]').forEach(cb => {
       cb.addEventListener('change', () => {
         let anyChecked = false;
         document.querySelectorAll('input[name="recurringDays"]').forEach(item => {
-          if(item.checked) anyChecked = true;
+          if (item.checked) anyChecked = true;
         });
         document.getElementById('meeting-date-container').style.display = anyChecked ? 'none' : 'block';
       });
     });
-    
+
     // Checkbox Presencial: oculta os campos de horário se marcado
     document.getElementById('meeting-client').addEventListener('change', (e) => {
       document.getElementById('meeting-time-container').style.display = e.target.checked ? 'none' : 'block';
     });
-    
+
     // Adicionar Reunião
     document.getElementById('meeting-form').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -531,49 +596,49 @@
       let recurring = [];
       recurringCheckboxes.forEach(cb => recurring.push(cb.value));
       let date = null;
-      if(recurring.length === 0) {
+      if (recurring.length === 0) {
         date = document.getElementById('meeting-date').value;
       }
       const presencial = document.getElementById('meeting-client').checked;
       let start = "";
       let end = "";
-      if(!presencial) {
+      if (!presencial) {
         start = document.getElementById('meeting-start').value;
         end = document.getElementById('meeting-end').value;
       }
-      
+
       // Se a reunião for única, verifica conflitos e pergunta se deseja sobrescrever
-      if(date) {
+      if (date) {
         let conflictFound = false;
         let conflictIndex = -1;
         for (let i = 0; i < meetings.length; i++) {
           let m = meetings[i];
           let mApplies = false;
-          if(m.recurring && m.recurring.length > 0) {
+          if (m.recurring && m.recurring.length > 0) {
             const dayObj = parseDate(date);
             const dayName = weekDays[dayObj.getDay()];
-            if(m.recurring.includes(dayName)) {
-              if(!m.exclusions || !m.exclusions.includes(date)) {
+            if (m.recurring.includes(dayName)) {
+              if (!m.exclusions || !m.exclusions.includes(date)) {
                 mApplies = true;
               }
             }
-          } else if(m.date && m.date === date) {
+          } else if (m.date && m.date === date) {
             mApplies = true;
           }
-          if(mApplies) {
-            if(m.presencial || (!presencial && m.start && m.end && start && end && !(timeToMinutes(end) <= timeToMinutes(m.start) || timeToMinutes(start) >= timeToMinutes(m.end)))) {
+          if (mApplies) {
+            if (m.presencial || (!presencial && m.start && m.end && start && end && !(timeToMinutes(end) <= timeToMinutes(m.start) || timeToMinutes(start) >= timeToMinutes(m.end)))) {
               conflictFound = true;
               conflictIndex = i;
               break;
             }
           }
         }
-        if(conflictFound) {
+        if (conflictFound) {
           let overwrite = confirm("Já existe uma reunião neste período neste dia. Deseja sobrescrever a reunião existente para este dia?");
-          if(overwrite) {
+          if (overwrite) {
             let conflicting = meetings[conflictIndex];
-            if(conflicting.recurring && conflicting.recurring.length > 0) {
-              if(!conflicting.exclusions) conflicting.exclusions = [];
+            if (conflicting.recurring && conflicting.recurring.length > 0) {
+              if (!conflicting.exclusions) conflicting.exclusions = [];
               conflicting.exclusions.push(date);
               saveData('meetings', meetings);
             } else {
@@ -586,9 +651,9 @@
           }
         }
       }
-      
+
       let meetingObj = { name, recurring, date, presencial, start, end };
-      if(recurring.length > 0) {
+      if (recurring.length > 0) {
         meetingObj.exclusions = [];
       }
       meetings.push(meetingObj);
@@ -598,193 +663,222 @@
       document.getElementById('meeting-date-container').style.display = 'block';
       document.getElementById('meeting-time-container').style.display = 'block';
     });
-    
+
     /* Geração do Cronograma */
-    // Função para alocar as tarefas sequencialmente, respeitando o limite diário cumulativo
-    function allocateTasks(freeIntervals, totalFree, tasksArray) {
-      let segments = [];
-      let cumAllocated = 0;
-      for (let task of tasksArray) {
-        if (cumAllocated >= totalFree) break;
-        let allowedTime = (task.percent / 100) * totalFree;
-        // Se a soma dos percentuais ultrapassar o total, limite é o que sobra
-        if (cumAllocated + allowedTime > totalFree) {
-          allowedTime = totalFree - cumAllocated;
-        }
-        let allocation = Math.min(task.globalRemaining, allowedTime);
-        if (allocation <= 0) continue;
-        let remainingAllocation = allocation;
-        // Distribui a alocação pelos freeIntervals em sequência
-        for (let i = 0; i < freeIntervals.length && remainingAllocation > 0; i++) {
-          let interval = freeIntervals[i];
-          let available = interval.end - interval.start;
-          if (available <= 0) continue;
-          let allocHere = Math.min(available, remainingAllocation);
-          segments.push({
-            type: 'task',
-            name: task.name,
-            start: interval.start,
-            end: interval.start + allocHere,
-            color: task.color,
-            textColor: "#FFFFFF"
-          });
-          interval.start += allocHere;
-          remainingAllocation -= allocHere;
-        }
-        let allocatedAmount = allocation - remainingAllocation;
-        cumAllocated += allocatedAmount;
-        task.globalRemaining -= allocatedAmount;
-      }
-      return segments;
-    }
-    
     document.getElementById('generate-btn').addEventListener('click', () => {
       const output = document.getElementById('schedule-output');
       output.innerHTML = "";
-      
+
       let sortedWorkdays = workdays.slice().sort((a, b) => parseDate(a.date) - parseDate(b.date));
       if (scheduleStart) {
         sortedWorkdays = sortedWorkdays.filter(day => parseDate(day.date) >= parseDate(scheduleStart.date));
       }
-      
-      // Cópia das tarefas com tempo restante (em minutos)
+
+      // Cria cópia das tarefas com tempo restante (em minutos)
       let scheduledTasks = tasks.map(task => ({
         name: task.name,
         globalRemaining: timeToMinutes(task.time),
         percent: task.percent,
         color: task.color
       }));
-      
-      // Função que retorna os eventos fixos de um dia (almoço e reuniões)
-      // Se houver reunião presencial, esta sobrepõe quaisquer outras reuniões
-      function getFixedEvents(day) {
-        let events = [];
-        let workStartMin = timeToMinutes(day.start);
-        let workEndMin = timeToMinutes(day.end);
-        let lunchStartMin = timeToMinutes(day.lunchStart);
-        let lunchEndMin = lunchStartMin + parseInt(day.lunchDuration);
-        // Almoço
-        if(lunchStartMin >= workStartMin && lunchEndMin <= workEndMin) {
-          events.push({
-            type: 'lunch',
-            name: 'Almoço',
-            start: lunchStartMin,
-            end: lunchEndMin,
-            color: "#FFFFFF",
-            textColor: "#000000"
-          });
+
+      // Função para alocar as tarefas respeitando o limite percentual cumulativo
+      function allocateTasks(freeIntervals, totalFree, tasksArray) {
+        let segments = [];
+        let cumAllocated = 0;
+        for (let task of tasksArray) {
+          if (cumAllocated >= totalFree) break;
+          let allowedTime = (task.percent / 100) * totalFree;
+          if (cumAllocated + allowedTime > totalFree) {
+            allowedTime = totalFree - cumAllocated;
+          }
+          let allocation = Math.min(task.globalRemaining, allowedTime);
+          if (allocation <= 0) continue;
+          let remainingAllocation = allocation;
+          for (let i = 0; i < freeIntervals.length && remainingAllocation > 0; i++) {
+            let interval = freeIntervals[i];
+            let available = interval.end - interval.start;
+            if (available <= 0) continue;
+            let allocHere = Math.min(available, remainingAllocation);
+            segments.push({
+              type: 'task',
+              name: task.name,
+              start: interval.start,
+              end: interval.start + allocHere,
+              color: task.color,
+              textColor: "#FFFFFF"
+            });
+            interval.start += allocHere;
+            remainingAllocation -= allocHere;
+          }
+          let allocatedAmount = allocation - remainingAllocation;
+          cumAllocated += allocatedAmount;
+          task.globalRemaining -= allocatedAmount;
         }
-        // Verifica se há reunião presencial
-        let presencialMeeting = null;
-        meetings.forEach(meeting => {
-          let applies = false;
-          if(meeting.recurring && meeting.recurring.length > 0) {
-            const dayObj = parseDate(day.date);
-            const dayName = weekDays[dayObj.getDay()];
-            if(meeting.recurring.includes(dayName)) {
-              if(!meeting.exclusions || !meeting.exclusions.includes(day.date)) {
-                applies = true;
-              }
-            }
-          } else if(meeting.date && meeting.date === day.date) {
-            applies = true;
+        return segments;
+      }
+
+      sortedWorkdays.forEach(day => {
+        // Define a base de alocação
+        let baseStart = timeToMinutes(day.start);
+        let workEnd = timeToMinutes(day.end);
+
+        // Se for o dia de início do cronograma, usamos o horário definido pelo usuário
+        // para verificar quais tarefas fixas devem ser consideradas
+        let checkFromTime = baseStart;
+        if (day.date === scheduleStart.date) {
+          checkFromTime = timeToMinutes(scheduleStart.time);
+        }
+
+        // Obter eventos fixos (almoço e reuniões) - verificamos a partir do checkFromTime
+        function getFixedEvents(day) {
+          let events = [];
+          let lunchStartMin = timeToMinutes(day.lunchStart);
+          let lunchEndMin = lunchStartMin + parseInt(day.lunchDuration);
+
+          // Incluímos o almoço somente se ocorrer após o checkFromTime
+          if (lunchEndMin > checkFromTime && lunchStartMin <= workEnd) {
+            // Ajustamos o início se necessário
+            let adjustedLunchStart = Math.max(lunchStartMin, checkFromTime);
+            events.push({
+              type: 'lunch',
+              name: 'Almoço',
+              start: adjustedLunchStart,
+              end: lunchEndMin,
+              color: "#FFFFFF",
+              textColor: "#000000"
+            });
           }
-          if(applies && meeting.presencial) {
-            presencialMeeting = meeting;
-          }
-        });
-        if(presencialMeeting) {
-          events.push({
-            type: 'meeting',
-            name: presencialMeeting.name,
-            start: workStartMin,
-            end: lunchStartMin,
-            color: "#000000",
-            textColor: "#FFFFFF"
-          });
-          events.push({
-            type: 'meeting',
-            name: presencialMeeting.name,
-            start: lunchEndMin,
-            end: workEndMin,
-            color: "#000000",
-            textColor: "#FFFFFF"
-          });
-        } else {
+
+          // Reuniões
+          let presencialMeeting = null;
           meetings.forEach(meeting => {
             let applies = false;
-            if(meeting.recurring && meeting.recurring.length > 0) {
+            if (meeting.recurring && meeting.recurring.length > 0) {
               const dayObj = parseDate(day.date);
               const dayName = weekDays[dayObj.getDay()];
-              if(meeting.recurring.includes(dayName)) {
-                if(!meeting.exclusions || !meeting.exclusions.includes(day.date)) {
+              if (meeting.recurring.includes(dayName)) {
+                if (!meeting.exclusions || !meeting.exclusions.includes(day.date)) {
                   applies = true;
                 }
               }
-            } else if(meeting.date && meeting.date === day.date) {
+            } else if (meeting.date && meeting.date === day.date) {
               applies = true;
             }
-            if(applies && !meeting.presencial && meeting.start && meeting.end) {
-              let mStart = timeToMinutes(meeting.start);
-              let mEnd = timeToMinutes(meeting.end);
-              events.push({
-                type: 'meeting',
-                name: meeting.name,
-                start: mStart,
-                end: mEnd,
-                color: "#000000",
-                textColor: "#FFFFFF"
-              });
+            if (applies && meeting.presencial) {
+              presencialMeeting = meeting;
             }
           });
+
+          if (presencialMeeting) {
+            events.push({
+              type: 'meeting',
+              name: presencialMeeting.name,
+              start: checkFromTime,  // Ocupa todo o dia a partir do checkFromTime
+              end: workEnd,
+              color: "#000000",
+              textColor: "#FFFFFF"
+            });
+          } else {
+            meetings.forEach(meeting => {
+              let applies = false;
+              if (meeting.recurring && meeting.recurring.length > 0) {
+                const dayObj = parseDate(day.date);
+                const dayName = weekDays[dayObj.getDay()];
+                if (meeting.recurring.includes(dayName)) {
+                  if (!meeting.exclusions || !meeting.exclusions.includes(day.date)) {
+                    applies = true;
+                  }
+                }
+              } else if (meeting.date && meeting.date === day.date) {
+                applies = true;
+              }
+              if (applies && !meeting.presencial && meeting.start && meeting.end) {
+                let mStart = timeToMinutes(meeting.start);
+                let mEnd = timeToMinutes(meeting.end);
+                // Considera somente eventos que ocorrem depois do checkFromTime
+                if (mEnd > checkFromTime && mStart < workEnd) {
+                  mStart = Math.max(mStart, checkFromTime);
+                  mEnd = Math.min(mEnd, workEnd);
+                  events.push({
+                    type: 'meeting',
+                    name: meeting.name,
+                    start: mStart,
+                    end: mEnd,
+                    color: "#000000",
+                    textColor: "#FFFFFF"
+                  });
+                }
+              }
+            });
+          }
+          events.sort((a, b) => a.start - b.start);
+          return events;
         }
-        events.sort((a, b) => a.start - b.start);
-        return events;
-      }
-      
-      sortedWorkdays.forEach(day => {
-        let workStart = timeToMinutes(day.start);
-        let workEnd = timeToMinutes(day.end);
+
         const fixedEvents = getFixedEvents(day);
+
+        // IMPORTANTE: A correção principal está aqui
+        // No primeiro dia, começamos a usar o horário do cronograma (scheduleStart)
+        // mas só para determinar que eventos fixos são relevantes
+        // Para tarefas, sempre começamos do horário de início normal do expediente
+        let taskStartTime = baseStart;
+        if (day.date === scheduleStart.date) {
+          taskStartTime = Math.max(baseStart, timeToMinutes(scheduleStart.time));
+        }
+
+        // Calcular intervalos livres considerando a partir do taskStartTime
         let freeIntervals = [];
-        let pointer = workStart;
+        let pointer = taskStartTime;
+
         fixedEvents.forEach(event => {
-          if(event.start > pointer) {
-            freeIntervals.push({start: pointer, end: event.start});
+          if (event.start > pointer) {
+            freeIntervals.push({ start: pointer, end: event.start });
           }
           pointer = Math.max(pointer, event.end);
         });
-        if(pointer < workEnd) {
-          freeIntervals.push({start: pointer, end: workEnd});
+
+        if (pointer < workEnd) {
+          freeIntervals.push({ start: pointer, end: workEnd });
         }
+
         let totalFree = freeIntervals.reduce((acc, intv) => acc + (intv.end - intv.start), 0);
-        
-        // Aloca as tarefas de forma sequencial, respeitando o limite percentual cumulativo
+
+        // Aloca as tarefas nos freeIntervals considerando o limite percentual diário
         let taskSegments = allocateTasks(freeIntervals, totalFree, scheduledTasks);
-        
-        // Mescla os segmentos das tarefas com os eventos fixos e ordena por horário
+
+        // Junta os eventos fixos com os segmentos de tarefa e ordena por horário
         let segments = fixedEvents.concat(taskSegments);
         segments.sort((a, b) => a.start - b.start);
+
         const dayDiv = document.createElement('div');
         dayDiv.className = 'schedule-day';
         const header = document.createElement('h3');
         header.textContent = formatDate(day.date);
         dayDiv.appendChild(header);
+
         segments.forEach(seg => {
           const segDiv = document.createElement('div');
           segDiv.className = 'schedule-segment';
+          if (seg.type === 'meeting') {
+            segDiv.classList.add('meeting');
+          } else if (seg.type === 'lunch') {
+            segDiv.classList.add('lunch');
+          }
           segDiv.style.backgroundColor = seg.color;
           segDiv.style.color = seg.textColor || "#fff";
           segDiv.textContent = `${seg.name}: ${formatTimeFromMinutes(seg.start)} - ${formatTimeFromMinutes(seg.end)}`;
           dayDiv.appendChild(segDiv);
         });
+
         output.appendChild(dayDiv);
       });
     });
-    
+
+
     /* Limpar Dados */
     document.getElementById('clear-btn').addEventListener('click', () => {
-      if(confirm('Tem certeza que deseja limpar todos os dados?')) {
+      if (confirm('Tem certeza que deseja limpar todos os dados?')) {
         localStorage.clear();
         tasks = [];
         workdays = [];
@@ -798,7 +892,7 @@
         alert('Dados limpos!');
       }
     });
-    
+
     /* Inicializações */
     renderTasks();
     renderWorkdays();
@@ -808,4 +902,5 @@
     applyDefaultWorkdayValues();
   </script>
 </body>
+
 </html>
