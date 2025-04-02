@@ -96,7 +96,7 @@
     /* Reuniões: fundo preto, texto branco; Almoço: fundo branco, texto preto */
     .meeting { background-color: #000000; color: #FFFFFF; }
     .lunch   { background-color: #FFFFFF; color: #000000; }
-    /* Estilo para grupo de checkboxes */
+    /* Grupo de checkboxes */
     .checkbox-group {
       display: flex;
       flex-wrap: wrap;
@@ -276,7 +276,7 @@
     const weekDays = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
     
     /* Funções Auxiliares */
-    // Para evitar problemas de fuso horário, sempre criamos a data com "T00:00:00"
+    // Para evitar problemas de fuso horário, sempre cria a data com "T00:00:00"
     function parseDate(dateStr) {
       return new Date(dateStr + "T00:00:00");
     }
@@ -441,7 +441,6 @@
     function renderScheduleOptions() {
       const scheduleSelect = document.getElementById('schedule-workday');
       scheduleSelect.innerHTML = '';
-      // Ordena os dias de trabalho usando parseDate para garantir que o fuso horário não altere o dia
       let sortedWorkdays = workdays.slice().sort((a, b) => parseDate(a.date) - parseDate(b.date));
       sortedWorkdays.forEach(day => {
         const option = document.createElement('option');
@@ -458,7 +457,6 @@
       const scheduleSelect = document.getElementById('schedule-workday');
       const selectedDate = scheduleSelect.value;
       const timeInput = document.getElementById('schedule-time');
-      // Procura o dia usando parseDate para garantir a correção do dia da semana
       const day = workdays.find(d => d.date === selectedDate);
       if(day) {
         // Preenche com o horário de início do dia, mas permite edição
@@ -504,7 +502,7 @@
       workdays.push({date, start, end, lunchStart, lunchDuration});
       saveData('workdays', workdays);
       renderWorkdays();
-      // Não limpa os campos; reinicia os valores de horário com os defaults e atualiza a data automaticamente
+      // Não limpa os campos; reinicializa os valores de horário com os defaults e atualiza a data automaticamente
       updateWorkdayDateDefault();
       applyDefaultWorkdayValues();
     });
@@ -602,12 +600,50 @@
     });
     
     /* Geração do Cronograma */
+    // Função para alocar as tarefas sequencialmente, respeitando o limite diário cumulativo
+    function allocateTasks(freeIntervals, totalFree, tasksArray) {
+      let segments = [];
+      let cumAllocated = 0;
+      for (let task of tasksArray) {
+        if (cumAllocated >= totalFree) break;
+        let allowedTime = (task.percent / 100) * totalFree;
+        // Se a soma dos percentuais ultrapassar o total, limite é o que sobra
+        if (cumAllocated + allowedTime > totalFree) {
+          allowedTime = totalFree - cumAllocated;
+        }
+        let allocation = Math.min(task.globalRemaining, allowedTime);
+        if (allocation <= 0) continue;
+        let remainingAllocation = allocation;
+        // Distribui a alocação pelos freeIntervals em sequência
+        for (let i = 0; i < freeIntervals.length && remainingAllocation > 0; i++) {
+          let interval = freeIntervals[i];
+          let available = interval.end - interval.start;
+          if (available <= 0) continue;
+          let allocHere = Math.min(available, remainingAllocation);
+          segments.push({
+            type: 'task',
+            name: task.name,
+            start: interval.start,
+            end: interval.start + allocHere,
+            color: task.color,
+            textColor: "#FFFFFF"
+          });
+          interval.start += allocHere;
+          remainingAllocation -= allocHere;
+        }
+        let allocatedAmount = allocation - remainingAllocation;
+        cumAllocated += allocatedAmount;
+        task.globalRemaining -= allocatedAmount;
+      }
+      return segments;
+    }
+    
     document.getElementById('generate-btn').addEventListener('click', () => {
       const output = document.getElementById('schedule-output');
       output.innerHTML = "";
       
       let sortedWorkdays = workdays.slice().sort((a, b) => parseDate(a.date) - parseDate(b.date));
-      if(scheduleStart) {
+      if (scheduleStart) {
         sortedWorkdays = sortedWorkdays.filter(day => parseDate(day.date) >= parseDate(scheduleStart.date));
       }
       
@@ -619,8 +655,8 @@
         color: task.color
       }));
       
-      // Função para obter eventos fixos de um dia (almoço e reuniões)
-      // Se houver reunião presencial, ela sobrepõe quaisquer outras reuniões
+      // Função que retorna os eventos fixos de um dia (almoço e reuniões)
+      // Se houver reunião presencial, esta sobrepõe quaisquer outras reuniões
       function getFixedEvents(day) {
         let events = [];
         let workStartMin = timeToMinutes(day.start);
@@ -722,36 +758,11 @@
           freeIntervals.push({start: pointer, end: workEnd});
         }
         let totalFree = freeIntervals.reduce((acc, intv) => acc + (intv.end - intv.start), 0);
-        scheduledTasks.forEach(task => {
-          task.dailyLimit = totalFree * (task.percent / 100);
-          task.dailyAllocated = 0;
-        });
-        let taskSegments = [];
-        freeIntervals.forEach(interval => {
-          let remainingInterval = interval.end - interval.start;
-          let pointerInterval = interval.start;
-          scheduledTasks.forEach(task => {
-            if(remainingInterval <= 0) return;
-            let available = Math.min(task.globalRemaining, task.dailyLimit - task.dailyAllocated);
-            if(available > 0) {
-              let allocation = Math.min(remainingInterval, available);
-              if(allocation > 0) {
-                taskSegments.push({
-                  type: 'task',
-                  name: task.name,
-                  start: pointerInterval,
-                  end: pointerInterval + allocation,
-                  color: task.color,
-                  textColor: "#FFFFFF"
-                });
-                pointerInterval += allocation;
-                remainingInterval -= allocation;
-                task.dailyAllocated += allocation;
-                task.globalRemaining -= allocation;
-              }
-            }
-          });
-        });
+        
+        // Aloca as tarefas de forma sequencial, respeitando o limite percentual cumulativo
+        let taskSegments = allocateTasks(freeIntervals, totalFree, scheduledTasks);
+        
+        // Mescla os segmentos das tarefas com os eventos fixos e ordena por horário
         let segments = fixedEvents.concat(taskSegments);
         segments.sort((a, b) => a.start - b.start);
         const dayDiv = document.createElement('div');
